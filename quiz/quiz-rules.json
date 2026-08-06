@@ -1,0 +1,962 @@
+{
+  "version": 1,
+  "updated": "2026-08-06",
+  "settings": {
+    "csvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6wivSEjtpfSYiUoxPVz6kCQdKGpoVVtbOCstDuCOP1kQvLrEWBOdXC1iyNzVKzc5cVXL6D-cqTVGz/pub?gid=505446071&single=true&output=csv",
+    "maxResults": 3,
+    "secondaryThreshold": 0.7,
+    "weights": {
+      "must": 0,
+      "strongUp": 4,
+      "up": 2,
+      "neutral": 0,
+      "down": -2,
+      "strongDown": -4,
+      "eliminate": 0
+    }
+  },
+  "questions": [
+    {
+      "id": "state",
+      "enabled": true,
+      "type": "single",
+      "input": "select",
+      "weight": 1,
+      "eyebrow": "Location",
+      "title": "Where will you be planting?",
+      "help": "We only recommend blends proven to establish in your state.",
+      "placeholder": "Choose your state",
+      "auto": {
+        "kind": "stateFilter",
+        "column": "Grows In:",
+        "enabled": true
+      },
+      "options": [
+        {
+          "id": "Alabama",
+          "label": "Alabama",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Alaska",
+          "label": "Alaska",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Arizona",
+          "label": "Arizona",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Arkansas",
+          "label": "Arkansas",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "California",
+          "label": "California",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Colorado",
+          "label": "Colorado",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Connecticut",
+          "label": "Connecticut",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Delaware",
+          "label": "Delaware",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "District of Columbia",
+          "label": "District of Columbia",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Florida",
+          "label": "Florida",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Georgia",
+          "label": "Georgia",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Hawaii",
+          "label": "Hawaii",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Idaho",
+          "label": "Idaho",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Illinois",
+          "label": "Illinois",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Indiana",
+          "label": "Indiana",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Iowa",
+          "label": "Iowa",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Kansas",
+          "label": "Kansas",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Kentucky",
+          "label": "Kentucky",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Louisiana",
+          "label": "Louisiana",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Maine",
+          "label": "Maine",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Maryland",
+          "label": "Maryland",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Massachusetts",
+          "label": "Massachusetts",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Michigan",
+          "label": "Michigan",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Minnesota",
+          "label": "Minnesota",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Mississippi",
+          "label": "Mississippi",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Missouri",
+          "label": "Missouri",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Montana",
+          "label": "Montana",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Nebraska",
+          "label": "Nebraska",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Nevada",
+          "label": "Nevada",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "New Hampshire",
+          "label": "New Hampshire",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "New Jersey",
+          "label": "New Jersey",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "New Mexico",
+          "label": "New Mexico",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "New York",
+          "label": "New York",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "North Carolina",
+          "label": "North Carolina",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "North Dakota",
+          "label": "North Dakota",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Ohio",
+          "label": "Ohio",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Oklahoma",
+          "label": "Oklahoma",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Oregon",
+          "label": "Oregon",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Pennsylvania",
+          "label": "Pennsylvania",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Rhode Island",
+          "label": "Rhode Island",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "South Carolina",
+          "label": "South Carolina",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "South Dakota",
+          "label": "South Dakota",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Tennessee",
+          "label": "Tennessee",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Texas",
+          "label": "Texas",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Utah",
+          "label": "Utah",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Vermont",
+          "label": "Vermont",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Virginia",
+          "label": "Virginia",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Washington",
+          "label": "Washington",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "West Virginia",
+          "label": "West Virginia",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Wisconsin",
+          "label": "Wisconsin",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "Wyoming",
+          "label": "Wyoming",
+          "overrides": {},
+          "columnRules": []
+        }
+      ]
+    },
+    {
+      "id": "sun",
+      "enabled": true,
+      "type": "single",
+      "input": "cards",
+      "weight": 1.4,
+      "eyebrow": "Light",
+      "title": "How much sun does the area get each day?",
+      "help": "Stand in the spot mid-summer and count the hours of direct sun.",
+      "auto": {
+        "kind": "sunLadder",
+        "column": "Sun or Shade?",
+        "enabled": true,
+        "exactPoints": 4,
+        "neighborPoints": 0.5,
+        "farAction": "eliminate",
+        "ladder": [
+          "Full Sun (6+ hours of direct sun)",
+          "Full Sun to Partial Shade (4-6 hours of sun)",
+          "Partial Sun to Full Shade (3-4 hours of sun)",
+          "Full Shade (less than 3 hours of sun)"
+        ]
+      },
+      "options": [
+        {
+          "id": "full_sun",
+          "label": "Full sun",
+          "sub": "6+ hours of direct sun",
+          "value": "Full Sun (6+ hours of direct sun)",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "sun_part",
+          "label": "Full sun to partial shade",
+          "sub": "4\u20136 hours of sun",
+          "value": "Full Sun to Partial Shade (4-6 hours of sun)",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "part_shade",
+          "label": "Partial sun to full shade",
+          "sub": "3\u20134 hours of sun",
+          "value": "Partial Sun to Full Shade (3-4 hours of sun)",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "full_shade",
+          "label": "Full shade",
+          "sub": "Less than 3 hours of sun",
+          "value": "Full Shade (less than 3 hours of sun)",
+          "overrides": {},
+          "columnRules": []
+        }
+      ]
+    },
+    {
+      "id": "goal",
+      "enabled": true,
+      "type": "single",
+      "input": "cards",
+      "weight": 1.6,
+      "eyebrow": "The goal",
+      "title": "What kind of lawn are you hoping for?",
+      "help": "This is the biggest factor in what we send you.",
+      "auto": null,
+      "options": [
+        {
+          "id": "picture_perfect",
+          "label": "A picture-perfect green lawn",
+          "sub": "Manicured, uniform, showpiece",
+          "columnRules": [],
+          "overrides": {
+            "All Blue Blend Mix w/Tazo": "strongUp",
+            "Premium Sunny w/Tazo": "strongUp",
+            "Premium Sun & Shade w/Tazo": "strongUp",
+            "Premium Sod Overseeder Mix w/Tazo": "strongUp",
+            "3-Way Perennial Ryegrass": "up",
+            "Perennial Ryegrass": "up",
+            "Premium Medium Shade Mix": "up",
+            "Premium Dense Shade Mix": "up",
+            "Premium Heavy Traffic Mix w/Tazo": "up",
+            "Cabin Mix": "down",
+            "Country Lawn Mix": "down",
+            "Contractor Mix": "down",
+            "Gulf Annual Ryegrass": "down",
+            "Fescue Low Grow No Mow w/Tazo": "down",
+            "Micro Clover": "down",
+            "Dutch White Clover": "down",
+            "Pollinator Honeybee Lawn Mix": "down",
+            "Short Native Wildflower Mix": "eliminate",
+            "Tall Native Wildflower Mix": "eliminate",
+            "Wetland Native Wildflower Mix": "eliminate",
+            "Annual Deer Plot Mix": "eliminate",
+            "Perennial Deer Plot Mix": "eliminate"
+          }
+        },
+        {
+          "id": "kids_pets",
+          "label": "A lawn for kids and pets to play in",
+          "sub": "Tough, soft, forgiving",
+          "columnRules": [],
+          "overrides": {
+            "Premium Heavy Traffic Mix w/Tazo": "strongUp",
+            "3-Way Perennial Ryegrass": "strongUp",
+            "Micro Clover": "strongUp",
+            "Country Lawn Mix": "up",
+            "Premium Sun & Shade w/Tazo": "up",
+            "All Purpose Quick Sunny Mix": "up",
+            "Perennial Ryegrass": "up",
+            "Fine Fescue Mix": "up",
+            "Dutch White Clover": "up",
+            "Premium Dense Shade Mix": "down",
+            "Pollinator Honeybee Lawn Mix": "down",
+            "Fescue Low Grow No Mow w/Tazo": "down",
+            "Short Native Wildflower Mix": "eliminate",
+            "Tall Native Wildflower Mix": "eliminate",
+            "Wetland Native Wildflower Mix": "eliminate",
+            "Annual Deer Plot Mix": "eliminate",
+            "Perennial Deer Plot Mix": "eliminate"
+          }
+        },
+        {
+          "id": "quick",
+          "label": "A quick-establishing lawn",
+          "sub": "Green as fast as possible",
+          "columnRules": [
+            {
+              "column": "Germination Rate",
+              "op": "equals",
+              "value": "Quick",
+              "effect": "up"
+            },
+            {
+              "column": "Germination Rate",
+              "op": "equals",
+              "value": "Slow",
+              "effect": "down"
+            }
+          ],
+          "overrides": {
+            "All Purpose Quick Sunny Mix": "strongUp",
+            "Contractor Mix": "strongUp",
+            "3-Way Perennial Ryegrass": "strongUp",
+            "Cabin Mix": "up",
+            "Country Lawn Mix": "up",
+            "Perennial Ryegrass": "up",
+            "Gulf Annual Ryegrass": "up",
+            "Northern Sun & Shade Mix": "up",
+            "Short Native Wildflower Mix": "eliminate",
+            "Tall Native Wildflower Mix": "eliminate",
+            "Wetland Native Wildflower Mix": "eliminate"
+          }
+        },
+        {
+          "id": "low_maint",
+          "label": "A low-maintenance lawn",
+          "sub": "Less mowing, less watering",
+          "columnRules": [],
+          "overrides": {
+            "Fescue Low Grow No Mow w/Tazo": "strongUp",
+            "Cabin Mix": "strongUp",
+            "Micro Clover": "strongUp",
+            "Boreal Creeping Red Fescue": "up",
+            "Fine Fescue Mix": "up",
+            "Country Lawn Mix": "up",
+            "Dutch White Clover": "up",
+            "Pollinator Honeybee Lawn Mix": "up",
+            "Perennial Ryegrass": "down",
+            "All Blue Blend Mix w/Tazo": "down",
+            "Premium Sunny w/Tazo": "down",
+            "Premium Sun & Shade w/Tazo": "down",
+            "Premium Dense Shade Mix": "down",
+            "Northern Sun & Shade Mix": "down",
+            "Annual Deer Plot Mix": "eliminate",
+            "Perennial Deer Plot Mix": "eliminate"
+          }
+        },
+        {
+          "id": "drought",
+          "label": "A lawn that can resist drought",
+          "sub": "Deep roots, low water",
+          "columnRules": [
+            {
+              "column": "Water Usage",
+              "op": "equals",
+              "value": "Low Water Needs",
+              "effect": "up"
+            },
+            {
+              "column": "Water Usage",
+              "op": "equals",
+              "value": "High Water Needs",
+              "effect": "down"
+            }
+          ],
+          "overrides": {
+            "Fine Fescue Mix": "strongUp",
+            "Boreal Creeping Red Fescue": "strongUp",
+            "Fescue Low Grow No Mow w/Tazo": "strongUp",
+            "Cabin Mix": "up",
+            "Country Lawn Mix": "up",
+            "Sandy Soil Mix": "up",
+            "Micro Clover": "up",
+            "Dutch White Clover": "up",
+            "Super Salt Tolerant Mix w/Tazo": "up",
+            "Pollinator Honeybee Lawn Mix": "up",
+            "All Blue Blend Mix w/Tazo": "down",
+            "Perennial Ryegrass": "down",
+            "Premium Heavy Traffic Mix w/Tazo": "down",
+            "Premium Dense Shade Mix": "down",
+            "Annual Deer Plot Mix": "eliminate",
+            "Perennial Deer Plot Mix": "eliminate"
+          }
+        },
+        {
+          "id": "overseed",
+          "label": "Overseed an existing lawn",
+          "sub": "Thicken up what's already there",
+          "columnRules": [
+            {
+              "column": "Good for Overseeding?",
+              "op": "notEquals",
+              "value": "Yes",
+              "effect": "eliminate"
+            }
+          ],
+          "overrides": {
+            "Premium Sod Overseeder Mix w/Tazo": "strongUp",
+            "3-Way Perennial Ryegrass": "strongUp",
+            "Premium Sun & Shade w/Tazo": "up",
+            "Micro Clover": "up",
+            "Perennial Ryegrass": "up",
+            "Dutch White Clover": "up",
+            "Premium Sunny w/Tazo": "up",
+            "Fine Fescue Mix": "up",
+            "Short Native Wildflower Mix": "eliminate",
+            "Tall Native Wildflower Mix": "eliminate",
+            "Wetland Native Wildflower Mix": "eliminate",
+            "Annual Deer Plot Mix": "eliminate",
+            "Perennial Deer Plot Mix": "eliminate"
+          }
+        },
+        {
+          "id": "convert",
+          "label": "Convert to clover or wildflower prairie",
+          "sub": "Let it go wild, on purpose",
+          "columnRules": [],
+          "overrides": {
+            "Micro Clover": "strongUp",
+            "Dutch White Clover": "strongUp",
+            "Short Native Wildflower Mix": "strongUp",
+            "Tall Native Wildflower Mix": "strongUp",
+            "Wetland Native Wildflower Mix": "strongUp",
+            "Pollinator Honeybee Lawn Mix": "strongUp",
+            "Fescue Low Grow No Mow w/Tazo": "up",
+            "Cabin Mix": "up",
+            "3-Way Perennial Ryegrass": "eliminate",
+            "All Blue Blend Mix w/Tazo": "eliminate",
+            "All Purpose Quick Sunny Mix": "eliminate",
+            "Contractor Mix": "eliminate",
+            "Perennial Ryegrass": "eliminate",
+            "Premium Heavy Traffic Mix w/Tazo": "eliminate",
+            "Premium Sod Overseeder Mix w/Tazo": "eliminate",
+            "Premium Sun & Shade w/Tazo": "eliminate",
+            "Premium Sunny w/Tazo": "eliminate",
+            "Northern Sun & Shade Mix": "eliminate",
+            "Premium Dense Shade Mix": "eliminate",
+            "Premium Medium Shade Mix": "eliminate",
+            "Gulf Annual Ryegrass": "eliminate",
+            "Super Salt Tolerant Mix w/Tazo": "eliminate"
+          }
+        },
+        {
+          "id": "unsure",
+          "label": "I'm not sure yet",
+          "sub": "Send me something that just works",
+          "columnRules": [],
+          "overrides": {
+            "Premium Sun & Shade w/Tazo": "up",
+            "Country Lawn Mix": "up",
+            "All Purpose Quick Sunny Mix": "up",
+            "Annual Deer Plot Mix": "eliminate",
+            "Perennial Deer Plot Mix": "eliminate",
+            "Short Native Wildflower Mix": "eliminate",
+            "Tall Native Wildflower Mix": "eliminate",
+            "Wetland Native Wildflower Mix": "eliminate"
+          }
+        }
+      ]
+    },
+    {
+      "id": "traffic",
+      "enabled": true,
+      "type": "single",
+      "input": "cards",
+      "weight": 1.2,
+      "eyebrow": "Wear",
+      "title": "How much foot traffic will it get?",
+      "help": "Wear tolerance is about recovery, not just toughness.",
+      "auto": {
+        "kind": "wearMatch",
+        "column": "High Wear Tolerance?",
+        "enabled": true,
+        "table": {
+          "light": {
+            "Not Recommended for High Traffic Areas": 3,
+            "Moderate Wear Tolerance": 1,
+            "High Wear Tolerance": 0,
+            "Very High Wear Tolerance": 0
+          },
+          "normal": {
+            "Not Recommended for High Traffic Areas": -3,
+            "Moderate Wear Tolerance": 3,
+            "High Wear Tolerance": 3,
+            "Very High Wear Tolerance": 1
+          },
+          "heavy": {
+            "Not Recommended for High Traffic Areas": "eliminate",
+            "Moderate Wear Tolerance": -1,
+            "High Wear Tolerance": 2,
+            "Very High Wear Tolerance": 4
+          }
+        }
+      },
+      "options": [
+        {
+          "id": "light",
+          "label": "Very little traffic",
+          "sub": "Mostly there to look good",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "normal",
+          "label": "Normal family traffic",
+          "sub": "Regular use, nothing punishing",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "heavy",
+          "label": "A lot of traffic",
+          "sub": "Sports, kids, and pets on it daily",
+          "overrides": {},
+          "columnRules": []
+        }
+      ]
+    },
+    {
+      "id": "effort",
+      "enabled": true,
+      "type": "single",
+      "input": "cards",
+      "weight": 1.3,
+      "eyebrow": "Upkeep",
+      "title": "How much work do you want to put in?",
+      "help": "We score mowing and watering together to find your match.",
+      "auto": {
+        "kind": "effortMatch",
+        "enabled": true,
+        "mowColumn": "Mowing Requirements",
+        "waterColumn": "Water Usage",
+        "mowScale": {
+          "Little to no mowing needed": 0,
+          "Occassional mowing": 1,
+          "Occasional mowing": 1,
+          "Standard mowing interval": 2,
+          "Needs frequent mowing": 3
+        },
+        "waterScale": {
+          "Low Water Needs": 0,
+          "Normal Water Needs": 1.5,
+          "High Water Needs": 3
+        },
+        "targets": {
+          "high": 6,
+          "medium": 3,
+          "low": 0
+        },
+        "points": 4
+      },
+      "options": [
+        {
+          "id": "high",
+          "label": "I'm out there almost every day",
+          "sub": "Mowing, watering, the works",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "medium",
+          "label": "I'm a weekend lawn person",
+          "sub": "A solid hour or two a week",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "low",
+          "label": "I rarely have time for it",
+          "sub": "Mow it when I have to",
+          "overrides": {},
+          "columnRules": []
+        }
+      ]
+    },
+    {
+      "id": "timeline",
+      "enabled": true,
+      "type": "single",
+      "input": "cards",
+      "weight": 0.8,
+      "eyebrow": "Timing",
+      "title": "How soon do you need it green?",
+      "help": "Fast growers cover bare soil; slow growers build a better lawn.",
+      "auto": {
+        "kind": "germinationMatch",
+        "column": "Germination Rate",
+        "enabled": true,
+        "table": {
+          "asap": {
+            "Quick": 4,
+            "Normal": 1,
+            "Slow": -2
+          },
+          "normal": {
+            "Quick": 2,
+            "Normal": 3,
+            "Slow": 1
+          },
+          "patient": {
+            "Quick": 0,
+            "Normal": 2,
+            "Slow": 3
+          }
+        }
+      },
+      "options": [
+        {
+          "id": "asap",
+          "label": "As fast as it can grow",
+          "sub": "Bare soil, erosion, or an event coming up",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "normal",
+          "label": "Normal timing is fine",
+          "sub": "Two to three weeks is fine",
+          "overrides": {},
+          "columnRules": []
+        },
+        {
+          "id": "patient",
+          "label": "I'll wait for the right lawn",
+          "sub": "Quality over speed",
+          "overrides": {},
+          "columnRules": []
+        }
+      ]
+    },
+    {
+      "id": "conditions",
+      "enabled": true,
+      "type": "multi",
+      "input": "cards",
+      "weight": 1.1,
+      "eyebrow": "Site",
+      "title": "Anything else true about this spot?",
+      "help": "Pick everything that applies, or skip it.",
+      "auto": null,
+      "options": [
+        {
+          "id": "sandy",
+          "label": "Sandy or fast-draining soil",
+          "sub": "Water disappears after a rain",
+          "columnRules": [],
+          "overrides": {
+            "Sandy Soil Mix": "strongUp",
+            "Fine Fescue Mix": "up",
+            "Boreal Creeping Red Fescue": "up",
+            "Fescue Low Grow No Mow w/Tazo": "up"
+          }
+        },
+        {
+          "id": "salt",
+          "label": "Next to a salted road or walk",
+          "sub": "Winter salt spray or plow throw",
+          "columnRules": [],
+          "overrides": {
+            "Super Salt Tolerant Mix w/Tazo": "strongUp",
+            "Fine Fescue Mix": "up"
+          }
+        },
+        {
+          "id": "wet",
+          "label": "Low, wet, or soggy ground",
+          "sub": "Holds water after storms",
+          "columnRules": [],
+          "overrides": {
+            "Wetland Native Wildflower Mix": "strongUp",
+            "Dutch White Clover": "up",
+            "Perennial Ryegrass": "up"
+          }
+        },
+        {
+          "id": "pollinators",
+          "label": "I want to feed pollinators",
+          "sub": "Bees and butterflies welcome",
+          "columnRules": [],
+          "overrides": {
+            "Pollinator Honeybee Lawn Mix": "strongUp",
+            "Micro Clover": "strongUp",
+            "Dutch White Clover": "up",
+            "Short Native Wildflower Mix": "up",
+            "Tall Native Wildflower Mix": "up",
+            "Wetland Native Wildflower Mix": "up"
+          }
+        },
+        {
+          "id": "deer",
+          "label": "It's a food plot for deer",
+          "sub": "Not a lawn at all",
+          "columnRules": [],
+          "overrides": {
+            "Annual Deer Plot Mix": "strongUp",
+            "Perennial Deer Plot Mix": "strongUp",
+            "3-Way Perennial Ryegrass": "down",
+            "All Blue Blend Mix w/Tazo": "down",
+            "All Purpose Quick Sunny Mix": "down",
+            "Contractor Mix": "down",
+            "Perennial Ryegrass": "down",
+            "Premium Heavy Traffic Mix w/Tazo": "down",
+            "Premium Sod Overseeder Mix w/Tazo": "down",
+            "Premium Sun & Shade w/Tazo": "down",
+            "Premium Sunny w/Tazo": "down",
+            "Northern Sun & Shade Mix": "down",
+            "Premium Dense Shade Mix": "down",
+            "Premium Medium Shade Mix": "down",
+            "Gulf Annual Ryegrass": "down",
+            "Super Salt Tolerant Mix w/Tazo": "down"
+          }
+        },
+        {
+          "id": "none",
+          "label": "None of these",
+          "sub": "Just a regular yard",
+          "exclusive": true,
+          "columnRules": [],
+          "overrides": {}
+        }
+      ],
+      "required": false
+    },
+    {
+      "id": "feel",
+      "enabled": true,
+      "type": "single",
+      "input": "cards",
+      "weight": 0.6,
+      "eyebrow": "Finish",
+      "title": "Any preference on look and feel?",
+      "help": "A tiebreaker between blends that are otherwise close.",
+      "auto": null,
+      "options": [
+        {
+          "id": "fine",
+          "label": "Soft and fine underfoot",
+          "sub": "Barefoot grass",
+          "overrides": {},
+          "columnRules": [
+            {
+              "column": "Texture",
+              "op": "equals",
+              "value": "Soft and Fine",
+              "effect": "up"
+            }
+          ]
+        },
+        {
+          "id": "medium",
+          "label": "Classic medium blade",
+          "sub": "Traditional lawn look",
+          "overrides": {},
+          "columnRules": [
+            {
+              "column": "Texture",
+              "op": "equals",
+              "value": "Medium",
+              "effect": "up"
+            }
+          ]
+        },
+        {
+          "id": "dark",
+          "label": "The darkest green I can get",
+          "sub": "Deep color over texture",
+          "overrides": {},
+          "columnRules": [
+            {
+              "column": "Color",
+              "op": "contains",
+              "value": "Dark Green",
+              "effect": "up"
+            }
+          ]
+        },
+        {
+          "id": "any",
+          "label": "No strong preference",
+          "sub": "Surprise me",
+          "overrides": {},
+          "columnRules": []
+        }
+      ]
+    }
+  ]
+}

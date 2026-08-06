@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Quiz Builder — Blades &amp; Clover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Public+Sans:wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16241A; --field:#2B5636; --sprout:#7FA24E; --rose:#B4577A;
+  --paper:#F2F4EC; --card:#FBFCF7; --line:#CDD4C2; --muted:#5C6A5A;
+  --up:#B7D49A; --up2:#5E9440; --dn:#F0C4D2; --dn2:#B4577A;
+  --kill:#3A3A3A; --must:#E0A82E;
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Public Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+.mono{font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;font-weight:500}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;margin:0}
+:focus-visible{outline:2px solid var(--sprout);outline-offset:2px}
+
+/* --------------------------------------------------------- chrome */
+header.app{
+  position:sticky;top:0;z-index:40;background:var(--ink);color:#E8EEE4;
+  display:flex;align-items:center;gap:16px;padding:10px 18px;flex-wrap:wrap;
+}
+header.app img{height:24px}
+header.app h1{font-size:1rem;color:#fff;font-weight:700}
+header.app .grow{flex:1}
+.status{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:#9FB79B}
+.status.bad{color:#F0A3A3}
+
+.btn{background:var(--field);color:#fff;border:1px solid var(--field);padding:8px 15px;
+  border-radius:3px;cursor:pointer;font-weight:600;font-size:.85rem}
+.btn:hover{background:#20422A}
+.btn.ghost{background:transparent;border-color:#4A5C4A;color:#D9E4D5}
+.btn.ghost:hover{background:#22352A}
+.btn.sm{padding:5px 10px;font-size:.78rem;font-weight:500}
+.btn.line{background:transparent;color:var(--field);border-color:var(--line)}
+.btn.line:hover{background:var(--card)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+
+/* --------------------------------------------------------- tabs */
+nav.tabs{display:flex;gap:2px;background:var(--ink);padding:0 18px;overflow-x:auto}
+nav.tabs button{
+  background:transparent;border:0;border-bottom:2px solid transparent;color:#9FB79B;
+  padding:9px 15px;cursor:pointer;white-space:nowrap;font-family:var(--mono);
+  font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;font-weight:500;
+}
+nav.tabs button[aria-selected="true"]{color:#fff;border-bottom-color:var(--sprout)}
+
+main{padding:20px 18px 90px;max-width:1500px;margin:0 auto}
+.panel{display:none}
+.panel.on{display:block}
+
+/* --------------------------------------------------------- layout */
+.split{display:grid;grid-template-columns:250px 1fr;gap:20px;align-items:start}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+
+.qlist{background:var(--card);border:1px solid var(--line);border-radius:4px;overflow:hidden;position:sticky;top:96px}
+.qlist .hd{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--muted);background:#EDF0E6}
+.qrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #E4E8DC;cursor:pointer}
+.qrow:hover{background:#EFF3E9}
+.qrow[aria-current="true"]{background:#E4EDDA;box-shadow:inset 3px 0 0 var(--field)}
+.qrow .num{font-family:var(--mono);font-size:.62rem;color:var(--muted);flex:0 0 18px}
+.qrow .nm{flex:1;font-weight:500;font-size:.85rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow.off .nm{opacity:.4;text-decoration:line-through}
+.qrow .mv{background:none;border:0;color:var(--muted);cursor:pointer;padding:0 2px;line-height:1}
+.qlist .ft{padding:10px 12px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:16px}
+.card > h2{font-size:1.15rem;margin-bottom:4px}
+.card .sub{color:var(--muted);font-size:.85rem;margin:0 0 16px}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+label.f{display:block}
+label.f > span{display:block;color:var(--muted);margin-bottom:4px;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase}
+input[type=text],input[type=number],select,textarea{
+  width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:3px;background:#fff}
+textarea{min-height:64px;resize:vertical;font-family:var(--mono);font-size:.78rem}
+.switch{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:.85rem}
+
+.auto-note{background:#EDF2E6;border:1px solid #C6D6B8;border-radius:3px;padding:11px 14px;margin-bottom:16px;font-size:.83rem}
+.auto-note b{font-weight:600}
+
+/* --------------------------------------------------------- brushes */
+.brushbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px;
+  position:sticky;top:96px;z-index:15;background:var(--paper);padding:8px 0}
+.brush{border:1px solid var(--line);background:#fff;border-radius:3px;padding:6px 11px;
+  cursor:pointer;font-size:.78rem;font-weight:500;display:inline-flex;align-items:center;gap:7px}
+.brush[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
+.sw{width:13px;height:13px;border-radius:2px;border:1px solid rgba(0,0,0,.18);display:inline-block}
+.sw.must{background:var(--must)}.sw.strongUp{background:var(--up2)}.sw.up{background:var(--up)}
+.sw.neutral{background:#fff}.sw.down{background:var(--dn)}.sw.strongDown{background:var(--dn2)}
+.sw.eliminate{background:var(--kill)}
+.hint{color:var(--muted);font-size:.78rem}
+
+/* --------------------------------------------------------- matrix */
+.mwrap{overflow:auto;border:1px solid var(--line);border-radius:4px;background:#fff;max-height:70vh}
+table.mx{border-collapse:separate;border-spacing:0;font-size:.8rem;width:100%}
+table.mx th,table.mx td{border-bottom:1px solid #E8EBE2;border-right:1px solid #E8EBE2}
+table.mx thead th{
+  position:sticky;top:0;z-index:12;background:#EDF0E6;padding:8px 9px;text-align:left;
+  vertical-align:bottom;font-weight:600;font-size:.75rem;min-width:112px;max-width:150px}
+table.mx thead th .colbtn{display:block;width:100%;background:none;border:0;text-align:left;
+  cursor:pointer;padding:0;font-weight:600;font-size:.75rem;line-height:1.25}
+table.mx thead th .colbtn:hover{color:var(--field);text-decoration:underline}
+table.mx thead th small{display:block;color:var(--muted);font-weight:400;font-size:.68rem;margin-top:2px}
+table.mx th.rowh{
+  position:sticky;left:0;z-index:11;background:#F7F9F3;text-align:left;padding:6px 10px;
+  font-weight:500;min-width:210px;max-width:240px;cursor:pointer}
+table.mx thead th.corner{position:sticky;left:0;z-index:13;background:#E4E8DC;min-width:210px}
+table.mx th.rowh:hover{background:#EDF2E6}
+table.mx td{padding:0;text-align:center}
+.cell{width:100%;height:30px;border:0;cursor:pointer;background:#fff;font-family:var(--mono);
+  font-size:.6rem;font-weight:700;color:#33402F;display:block}
+.cell:hover{box-shadow:inset 0 0 0 2px var(--sprout)}
+.cell.must{background:var(--must);color:#3A2C00}
+.cell.strongUp{background:var(--up2);color:#fff}
+.cell.up{background:var(--up)}
+.cell.neutral{background:#fff;color:#C9CFC1}
+.cell.down{background:var(--dn)}
+.cell.strongDown{background:var(--dn2);color:#fff}
+.cell.eliminate{background:var(--kill);color:#fff}
+
+.mxtools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+.mxtools input[type=text]{width:190px}
+
+/* --------------------------------------------------------- col rules */
+.crlist{display:grid;gap:8px;margin-top:8px}
+.cr{display:grid;grid-template-columns:1.4fr .9fr 1.2fr 1fr auto;gap:6px;align-items:center}
+@media (max-width:760px){.cr{grid-template-columns:1fr 1fr}}
+.cr select,.cr input{padding:6px 8px;font-size:.8rem}
+.x{background:transparent;border:1px solid var(--line);border-radius:3px;color:var(--rose);
+  cursor:pointer;padding:5px 9px;font-size:.8rem}
+
+/* --------------------------------------------------------- sim */
+.simgrid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+@media (max-width:900px){.simgrid{grid-template-columns:1fr}}
+.simq{margin-bottom:14px}
+.simq > span{display:block;color:var(--muted);margin-bottom:4px;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 11px;cursor:pointer;font-size:.8rem}
+.chip[aria-pressed="true"]{background:var(--field);border-color:var(--field);color:#fff}
+
+.rescard{border:1px solid var(--line);border-radius:4px;background:#fff;padding:12px 14px;margin-bottom:9px}
+.rescard.top{border-color:var(--field);border-left:4px solid var(--field)}
+.rescard .rh{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.rescard .rh b{font-family:var(--display);font-size:1rem}
+.bd{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.bd span{background:#EDF0E6;border-radius:3px;padding:3px 7px;font-family:var(--mono);font-size:.6rem;letter-spacing:.06em}
+.bd span.neg{background:#F7E2E9;color:#8C3F5C}
+.bd span.zero{opacity:.45}
+.killed{color:var(--muted);font-size:.8rem;margin-top:14px}
+.killed code{font-family:var(--mono);font-size:.72rem;background:#EDF0E6;padding:1px 5px;border-radius:2px}
+
+/* --------------------------------------------------------- coverage */
+table.cov{border-collapse:collapse;width:100%;font-size:.82rem;background:#fff}
+table.cov th,table.cov td{border:1px solid var(--line);padding:7px 10px;text-align:left}
+table.cov th{background:#EDF0E6;position:sticky;top:0;font-size:.72rem;font-family:var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+table.cov td.n{text-align:center;font-family:var(--mono);font-weight:700;width:64px}
+tr.warn td{background:#FDF0F4}
+tr.warn td.n{color:var(--rose)}
+tr.crit td{background:#F9E2E9}
+.legend{color:var(--muted);font-size:.83rem;margin:0 0 14px}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);
+  color:#fff;padding:11px 20px;border-radius:99px;font-size:.85rem;z-index:99;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <img src="https://bladesandclover.netlify.app/images/Small-BC-logo.png" alt="">
+  <h1>Quiz Builder</h1>
+  <span class="status" id="status">Loading…</span>
+  <span class="grow"></span>
+  <button class="btn ghost sm" id="import">Import rules</button>
+  <button class="btn ghost sm" id="snapshot">Save data snapshot</button>
+  <button class="btn sm" id="download">Download quiz-rules.json</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button aria-selected="true" data-tab="rules">Questions &amp; rules</button>
+  <button aria-selected="false" data-tab="sim">Test the quiz</button>
+  <button aria-selected="false" data-tab="cov">Coverage check</button>
+  <button aria-selected="false" data-tab="set">Settings</button>
+</nav>
+
+<main>
+  <section class="panel on" id="p-rules"><div class="split">
+    <aside class="qlist">
+      <div class="hd mono">Questions</div>
+      <div id="qlist"></div>
+      <div class="ft"><button class="btn line sm" id="addq" style="width:100%">Add a question</button></div>
+    </aside>
+    <div id="qeditor"></div>
+  </div></section>
+
+  <section class="panel" id="p-sim"><div class="simgrid">
+    <div class="card">
+      <h2>Test the quiz</h2>
+      <p class="sub">Answer as a customer would. Results update instantly and use the exact same
+        engine as the live quiz.</p>
+      <div id="simform"></div>
+      <button class="btn line sm" id="simclear">Clear answers</button>
+    </div>
+    <div><div id="simout"></div></div>
+  </div></section>
+
+  <section class="panel" id="p-cov"><div class="card">
+    <h2>Coverage check</h2>
+    <p class="legend">How many quiz-enabled blends are available in each state, and how those split
+      across light levels. Anything under 3 means a customer there gets a thin, repetitive result —
+      worth widening a "Grows In:" list or adding a blend.</p>
+    <div id="covout"></div>
+  </div></section>
+
+  <section class="panel" id="p-set"><div class="card">
+    <h2>Settings</h2>
+    <p class="sub">These control how results are picked once every question has been scored.</p>
+    <div class="fields" id="setform"></div>
+    <label class="f"><span>Google Sheet CSV URL</span><input type="text" id="csvurl"></label>
+    <p class="sub" style="margin-top:14px">
+      If the sheet ever goes offline the quiz falls back to <code>seed-data.csv</code> sitting next
+      to it. Press <b>Save data snapshot</b> up top whenever you change the sheet to refresh that copy.</p>
+  </div></section>
+</main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="filein" accept="application/json" hidden>
+
+<script src="engine.js"></script>
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const EFFECTS = ['must','strongUp','up','neutral','down','strongDown','eliminate'];
+const GLYPH = {must:'★',strongUp:'++',up:'+',neutral:'·',down:'−',strongDown:'−−',eliminate:'✕'};
+const LABEL = {must:'Always recommend',strongUp:'Much more likely',up:'More likely',
+  neutral:'No change',down:'Less likely',strongDown:'Much less likely',eliminate:'Remove entirely'};
+const KEY = 'bc_quiz_rules_v1';
+
+let RULES=null, BLENDS=[], HEADERS=[], CSVTEXT='', qIndex=0, brush='up', dragging=false;
+const sim = {};
+
+/* ---------------------------------------------------------- storage */
+const store = {
+  get(){ try{ return localStorage.getItem(KEY); }catch(e){ return null; } },
+  set(v){ try{ localStorage.setItem(KEY, v); }catch(e){} }
+};
+function persist(){ store.set(JSON.stringify(RULES)); }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1900); }
+
+/* ------------------------------------------------------------- boot */
+async function boot(){
+  try{
+    const res = await fetch('quiz-rules.json',{cache:'no-store'});
+    RULES = await res.json();
+  }catch(e){ RULES = {version:1,settings:{maxResults:3,secondaryThreshold:0.7,weights:BCQuiz.DEFAULT_WEIGHTS,csvUrl:''},questions:[]}; }
+
+  const saved = store.get();
+  if(saved){
+    try{
+      const s = JSON.parse(saved);
+      if(confirm('You have unsaved builder changes from last time. Restore them?')) RULES = s;
+      else store.set('');
+    }catch(e){}
+  }
+
+  try{
+    const {text, source} = await BCQuiz.fetchCSV(RULES.settings.csvUrl, 'seed-data.csv');
+    CSVTEXT = text;
+    const d = BCQuiz.loadBlends(text);
+    BLENDS = d.blends; HEADERS = d.headers;
+    $('#status').textContent = BLENDS.length + ' blends in quiz / ' + d.all.length + ' in sheet · ' + source;
+  }catch(e){
+    $('#status').textContent = 'Sheet unreachable'; $('#status').className='status bad';
+  }
+  drawQList(); drawEditor(); drawSim(); drawCov(); drawSettings();
+}
+
+/* ------------------------------------------------------------- tabs */
+$('#tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  $$('#tabs button').forEach(x => x.setAttribute('aria-selected', x===b));
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'p'+'-'+b.dataset.tab));
+});
+
+/* -------------------------------------------------------- question list */
+function drawQList(){
+  $('#qlist').innerHTML = RULES.questions.map((q,i)=>`
+    <div class="qrow${q.enabled===false?' off':''}" data-i="${i}" aria-current="${i===qIndex}">
+      <span class="num">${String(i+1).padStart(2,'0')}</span>
+      <span class="nm" title="${esc(q.title)}">${esc(q.eyebrow||q.id)}</span>
+      <button class="mv" data-mv="-1" title="Move up">▲</button>
+      <button class="mv" data-mv="1" title="Move down">▼</button>
+    </div>`).join('');
+
+  $$('#qlist .qrow').forEach(row => {
+    row.onclick = e => {
+      const mv = e.target.closest('.mv');
+      const i = +row.dataset.i;
+      if(mv){
+        e.stopPropagation();
+        const j = i + (+mv.dataset.mv);
+        if(j<0 || j>=RULES.questions.length) return;
+        const [x] = RULES.questions.splice(i,1); RULES.questions.splice(j,0,x);
+        qIndex = j; persist(); drawQList(); drawEditor(); drawSim(); return;
+      }
+      qIndex = i; drawQList(); drawEditor();
+    };
+  });
+}
+
+$('#addq').onclick = () => {
+  const id = prompt('Short id for the new question (letters and dashes, e.g. "soil-type")');
+  if(!id) return;
+  if(RULES.questions.some(q=>q.id===id)) return alert('That id is already used.');
+  RULES.questions.push({id, enabled:true, type:'single', input:'cards', weight:1,
+    eyebrow:id, title:'New question', help:'', auto:null,
+    options:[{id:'option-1',label:'First answer',sub:'',overrides:{},columnRules:[]}]});
+  qIndex = RULES.questions.length-1; persist(); drawQList(); drawEditor(); drawSim();
+};
+
+/* ----------------------------------------------------------- editor */
+function drawEditor(){
+  const q = RULES.questions[qIndex];
+  if(!q){ $('#qeditor').innerHTML=''; return; }
+
+  const autoText = q.auto ? ({
+    stateFilter:'Reads <b>Grows In:</b> and removes every blend not listed for the chosen state. Never overridden — we will not sell seed that cannot establish.',
+    sunLadder:'Reads <b>Sun or Shade?</b> (handles blends listed under more than one light level). Exact match scores full points, one step away scores a little, two or more steps away is removed.',
+    wearMatch:'Reads <b>High Wear Tolerance?</b> and scores each answer against the wear rating.',
+    effortMatch:'Combines <b>Mowing Requirements</b> and <b>Water Usage</b> into one workload figure, then matches it to the time the customer has.',
+    germinationMatch:'Reads <b>Germination Rate</b> to favour fast or slow establishing blends.'
+  })[q.auto.kind] : null;
+
+  $('#qeditor').innerHTML = `
+    <div class="card">
+      <div class="fields">
+        <label class="f"><span>Section label</span><input type="text" id="f-eyebrow" value="${esc(q.eyebrow||'')}"></label>
+        <label class="f"><span>Weight</span><input type="number" id="f-weight" step="0.1" min="0" max="5" value="${q.weight!=null?q.weight:1}"></label>
+        <label class="f"><span>Answer type</span><select id="f-type">
+          <option value="single"${q.type==='single'?' selected':''}>Pick one</option>
+          <option value="multi"${q.type==='multi'?' selected':''}>Pick any number</option></select></label>
+        <label class="f"><span>Shown as</span><select id="f-input">
+          <option value="cards"${q.input==='cards'?' selected':''}>Answer cards</option>
+          <option value="select"${q.input==='select'?' selected':''}>Dropdown</option></select></label>
+      </div>
+      <label class="f" style="margin-bottom:12px"><span>Question</span><input type="text" id="f-title" value="${esc(q.title||'')}"></label>
+      <label class="f" style="margin-bottom:14px"><span>Helper text</span><input type="text" id="f-help" value="${esc(q.help||'')}"></label>
+      <label class="switch"><input type="checkbox" id="f-enabled"${q.enabled!==false?' checked':''}> Include this question in the live quiz</label>
+      ${autoText ? `<div class="auto-note" style="margin-top:14px">
+        <label class="switch" style="margin-bottom:6px"><input type="checkbox" id="f-auto"${q.auto.enabled!==false?' checked':''}><b>Automatic scoring from the spreadsheet</b></label>
+        <div>${autoText}</div>
+        <div style="margin-top:6px;color:var(--muted)">Anything you paint in the grid below is applied on top of this.</div>
+      </div>` : `<div class="auto-note" style="margin-top:14px">This question is scored <b>entirely by the grid below</b> — nothing is read from the spreadsheet automatically.</div>`}
+    </div>
+
+    <div class="card">
+      <h2>Answers and their effect on each blend</h2>
+      <p class="sub">Pick an effect, then click or drag across the grid to paint it. Click an answer
+        heading to fill that whole column; click a blend name to fill that whole row.</p>
+
+      <div class="brushbar">
+        ${EFFECTS.map(e=>`<button class="brush" data-e="${e}" aria-pressed="${e===brush}">
+          <i class="sw ${e}"></i>${esc(LABEL[e])}</button>`).join('')}
+      </div>
+
+      <div class="mxtools">
+        <input type="text" id="mxfilter" placeholder="Filter blends…">
+        <button class="btn line sm" id="mxclear">Clear this question's grid</button>
+        <span class="hint" id="mxcount"></span>
+      </div>
+
+      <div class="mwrap"><table class="mx"><thead><tr>
+        <th class="corner">Blend</th>
+        ${q.options.map((o,i)=>`<th><button class="colbtn" data-col="${i}">${esc(o.label)}</button>
+          <small>${esc(o.sub||'')}</small></th>`).join('')}
+      </tr></thead><tbody id="mxbody"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h2>Answer wording &amp; spreadsheet rules</h2>
+      <p class="sub">Spreadsheet rules apply an effect to every blend whose column matches — handy
+        for broad strokes like "remove anything not marked Yes for overseeding".</p>
+      <div id="optlist"></div>
+      <button class="btn line sm" id="addopt">Add an answer</button>
+    </div>`;
+
+  // field bindings
+  const bind = (sel, fn) => { const el=$(sel); if(el) el.oninput = el.onchange = () => { fn(el); persist(); }; };
+  bind('#f-eyebrow', el => { q.eyebrow = el.value; drawQList(); });
+  bind('#f-title',   el => { q.title   = el.value; drawSim(); });
+  bind('#f-help',    el => { q.help    = el.value; });
+  bind('#f-weight',  el => { q.weight  = parseFloat(el.value)||0; runSim(); });
+  bind('#f-type',    el => { q.type    = el.value; drawSim(); });
+  bind('#f-input',   el => { q.input   = el.value; });
+  bind('#f-enabled', el => { q.enabled = el.checked; drawQList(); drawSim(); });
+  bind('#f-auto',    el => { q.auto.enabled = el.checked; runSim(); });
+
+  $$('.brush').forEach(b => b.onclick = () => {
+    brush = b.dataset.e;
+    $$('.brush').forEach(x => x.setAttribute('aria-pressed', x===b));
+  });
+
+  $('#mxfilter').oninput = () => drawMatrix(q, $('#mxfilter').value);
+  $('#mxclear').onclick = () => {
+    if(!confirm('Clear every hand-set effect on this question?')) return;
+    q.options.forEach(o => o.overrides = {});
+    persist(); drawMatrix(q, $('#mxfilter').value); runSim(); toast('Grid cleared');
+  };
+  $('#addopt').onclick = () => {
+    const n = q.options.length + 1;
+    q.options.push({id:'option-'+n,label:'New answer',sub:'',overrides:{},columnRules:[]});
+    persist(); drawEditor(); drawSim();
+  };
+
+  drawMatrix(q, '');
+  drawOptList(q);
+}
+
+/* ----------------------------------------------------------- matrix */
+function drawMatrix(q, filter){
+  const f = (filter||'').toLowerCase();
+  const rows = BLENDS.filter(b => !f || b._name.toLowerCase().includes(f));
+  $('#mxbody').innerHTML = rows.map(b => `<tr>
+    <th class="rowh" data-row="${esc(b._name)}" title="Fill this row">${esc(b._name)}</th>
+    ${q.options.map((o,i)=>{
+      const e = (o.overrides||{})[b._name] || 'neutral';
+      return `<td><button class="cell ${e}" data-b="${esc(b._name)}" data-o="${i}"
+        title="${esc(b._name)} — ${esc(LABEL[e])}">${GLYPH[e]}</button></td>`;
+    }).join('')}
+  </tr>`).join('');
+
+  const set = (blendName, optIdx) => {
+    const o = q.options[optIdx]; if(!o) return;
+    o.overrides = o.overrides || {};
+    if(brush === 'neutral') delete o.overrides[blendName];
+    else o.overrides[blendName] = brush;
+  };
+  const repaint = () => { drawMatrix(q, filter); persist(); runSim(); };
+
+  $$('#mxbody .cell').forEach(c => {
+    c.onmousedown = e => { e.preventDefault(); dragging = true; set(c.dataset.b, +c.dataset.o);
+      c.className = 'cell ' + brush; c.textContent = GLYPH[brush]; };
+    c.onmouseenter = () => { if(!dragging) return; set(c.dataset.b, +c.dataset.o);
+      c.className = 'cell ' + brush; c.textContent = GLYPH[brush]; };
+  });
+  $$('#mxbody .rowh').forEach(h => h.onclick = () => {
+    q.options.forEach((o,i) => set(h.dataset.row, i)); repaint();
+  });
+  $$('.colbtn').forEach(h => h.onclick = () => {
+    rows.forEach(b => set(b._name, +h.dataset.col)); repaint();
+  });
+
+  const n = q.options.reduce((s,o) => s + Object.keys(o.overrides||{}).length, 0);
+  $('#mxcount').textContent = n + ' effect' + (n===1?'':'s') + ' set on this question';
+}
+document.addEventListener('mouseup', () => {
+  if(!dragging) return; dragging = false; persist(); runSim();
+  const q = RULES.questions[qIndex];
+  if(q) $('#mxcount').textContent =
+    q.options.reduce((s,o)=>s+Object.keys(o.overrides||{}).length,0) + ' effects set on this question';
+});
+
+/* ------------------------------------------------- answer + column rules */
+function drawOptList(q){
+  $('#optlist').innerHTML = q.options.map((o,i)=>`
+    <div class="card" style="background:#F7F9F3;padding:14px;margin-bottom:10px">
+      <div class="fields" style="margin-bottom:8px">
+        <label class="f"><span>Answer text</span><input type="text" data-o="${i}" data-k="label" value="${esc(o.label||'')}"></label>
+        <label class="f"><span>Small print</span><input type="text" data-o="${i}" data-k="sub" value="${esc(o.sub||'')}"></label>
+        <label class="f"><span>Answer id</span><input type="text" data-o="${i}" data-k="id" value="${esc(o.id||'')}"></label>
+      </div>
+      <div class="mono" style="color:var(--muted);margin-top:6px">Spreadsheet rules</div>
+      <div class="crlist">
+        ${(o.columnRules||[]).map((cr,j)=>`<div class="cr">
+          <select data-o="${i}" data-j="${j}" data-k="column">${
+            HEADERS.map(h=>`<option${h===cr.column?' selected':''}>${esc(h)}</option>`).join('')}</select>
+          <select data-o="${i}" data-j="${j}" data-k="op">${
+            ['equals','notEquals','contains','notContains','nonEmpty']
+              .map(op=>`<option value="${op}"${op===cr.op?' selected':''}>${op}</option>`).join('')}</select>
+          <input type="text" data-o="${i}" data-j="${j}" data-k="value" value="${esc(cr.value||'')}" placeholder="value">
+          <select data-o="${i}" data-j="${j}" data-k="effect">${
+            EFFECTS.map(e=>`<option value="${e}"${e===cr.effect?' selected':''}>${esc(LABEL[e])}</option>`).join('')}</select>
+          <button class="x" data-del="${i}:${j}">Remove</button>
+        </div>`).join('')}
+      </div>
+      <button class="btn line sm" data-addcr="${i}" style="margin-top:8px">Add a spreadsheet rule</button>
+      ${q.options.length>1?`<button class="x" data-delopt="${i}" style="margin-top:8px;margin-left:6px">Delete answer</button>`:''}
+    </div>`).join('');
+
+  $$('#optlist input[data-k],#optlist select[data-k]').forEach(el => {
+    el.onchange = el.oninput = () => {
+      const o = q.options[+el.dataset.o];
+      if(el.dataset.j != null) o.columnRules[+el.dataset.j][el.dataset.k] = el.value;
+      else o[el.dataset.k] = el.value;
+      persist();
+      if(el.dataset.k === 'label' || el.dataset.k === 'id'){ drawEditor(); drawSim(); }
+      runSim();
+    };
+  });
+  $$('[data-addcr]').forEach(b => b.onclick = () => {
+    const o = q.options[+b.dataset.addcr];
+    o.columnRules = o.columnRules || [];
+    o.columnRules.push({column:HEADERS[0]||'',op:'equals',value:'',effect:'up'});
+    persist(); drawOptList(q);
+  });
+  $$('[data-del]').forEach(b => b.onclick = () => {
+    const [i,j] = b.dataset.del.split(':').map(Number);
+    q.options[i].columnRules.splice(j,1); persist(); drawOptList(q); runSim();
+  });
+  $$('[data-delopt]').forEach(b => b.onclick = () => {
+    if(!confirm('Delete this answer and everything painted for it?')) return;
+    q.options.splice(+b.dataset.delopt,1); persist(); drawEditor(); drawSim();
+  });
+}
+
+/* -------------------------------------------------------------- sim */
+function drawSim(){
+  const qs = RULES.questions.filter(q => q.enabled !== false);
+  $('#simform').innerHTML = qs.map(q => `<div class="simq"><span>${esc(q.eyebrow||q.id)}</span>
+    ${q.input==='select'
+      ? `<select data-q="${esc(q.id)}"><option value="">—</option>${
+          q.options.map(o=>`<option value="${esc(o.id)}"${sim[q.id]===o.id?' selected':''}>${esc(o.label)}</option>`).join('')}</select>`
+      : `<div class="chips">${q.options.map(o=>{
+          const on = q.type==='multi' ? (sim[q.id]||[]).includes(o.id) : sim[q.id]===o.id;
+          return `<button class="chip" data-q="${esc(q.id)}" data-o="${esc(o.id)}" aria-pressed="${on}">${esc(o.label)}</button>`;
+        }).join('')}</div>`}
+  </div>`).join('');
+
+  $$('#simform select').forEach(s => s.onchange = () => { sim[s.dataset.q] = s.value || null; runSim(); });
+  $$('#simform .chip').forEach(c => c.onclick = () => {
+    const q = RULES.questions.find(x => x.id === c.dataset.q);
+    if(q.type === 'multi'){
+      const cur = Array.isArray(sim[q.id]) ? sim[q.id] : [];
+      sim[q.id] = cur.includes(c.dataset.o) ? cur.filter(x=>x!==c.dataset.o) : cur.concat(c.dataset.o);
+    }else{
+      sim[q.id] = sim[q.id] === c.dataset.o ? null : c.dataset.o;
+    }
+    drawSim(); runSim();
+  });
+  runSim();
+}
+$('#simclear').onclick = () => { Object.keys(sim).forEach(k=>delete sim[k]); drawSim(); };
+
+function runSim(){
+  if(!BLENDS.length || !$('#simout')) return;
+  const out = BCQuiz.runQuiz(BLENDS, RULES, sim);
+  const qs = RULES.questions.filter(q => q.enabled !== false);
+
+  const cards = out.results.map((r,i)=>`
+    <div class="rescard${i===0?' top':''}">
+      <div class="rh"><b>${i+1}. ${esc(r.name)}</b>
+        <span class="mono">${r.match}% · score ${r.score}${r.must?' · pinned':''}</span></div>
+      <div class="bd">${qs.map(q=>{
+        const p = r.perQuestion[q.id]; const v = p ? Math.round(p.points*100)/100 : 0;
+        return `<span class="${v<0?'neg':(v===0?'zero':'')}">${esc(q.eyebrow||q.id)} ${v>0?'+':''}${v}</span>`;
+      }).join('')}</div>
+    </div>`).join('');
+
+  const near = out.all.slice(out.results.length, out.results.length+5).map(r =>
+    `<div class="rescard"><div class="rh"><span>${esc(r.name)}</span>
+      <span class="mono">${r.match}% · score ${r.score}</span></div></div>`).join('');
+
+  const killedBy = {};
+  out.eliminated.forEach(r => { killedBy[r.eliminate] = (killedBy[r.eliminate]||0)+1; });
+  const reason = {hard:'wrong state', sun:'wrong light level', rule:'a rule you set'};
+
+  $('#simout').innerHTML = `
+    <div class="card">
+      <h2>Recommended${out.relaxed?' (widened)':''}</h2>
+      <p class="sub">${out.results.length} shown · ${out.all.length} eligible · ${out.eliminated.length} removed${
+        out.relaxed?' · nothing matched everything, so the '+esc(out.relaxed)+' filter was loosened':''}</p>
+      ${cards || '<p class="sub">Nothing qualifies for these answers.</p>'}
+      ${near ? '<div class="mono" style="color:var(--muted);margin:16px 0 8px">Just missed the cut</div>'+near : ''}
+      <div class="killed">Removed: ${Object.keys(killedBy).length
+        ? Object.entries(killedBy).map(([k,v])=>`<code>${v} by ${reason[k]||k}</code>`).join(' ')
+        : 'nothing'}</div>
+    </div>`;
+}
+
+/* --------------------------------------------------------- coverage */
+function drawCov(){
+  if(!BLENDS.length) return;
+  const cov = BCQuiz.coverageReport(BLENDS, RULES);
+  const short = l => l.replace(/\s*\(.*$/,'');
+  const sunCols = Object.keys(cov[0] ? cov[0].sun : {});
+  $('#covout').innerHTML = `<div style="overflow:auto;max-height:70vh"><table class="cov">
+    <thead><tr><th>State</th><th>Blends</th>${sunCols.map(s=>`<th>${esc(short(s))}</th>`).join('')}</tr></thead>
+    <tbody>${cov.map(c=>`<tr class="${c.count===0?'crit':(c.count<3?'warn':'')}">
+      <td>${esc(c.state)}</td><td class="n">${c.count}</td>
+      ${sunCols.map(s=>`<td class="n">${c.sun[s]}</td>`).join('')}
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+/* --------------------------------------------------------- settings */
+function drawSettings(){
+  const s = RULES.settings;
+  $('#setform').innerHTML = `
+    <label class="f"><span>Most blends to show</span><input type="number" id="s-max" min="1" max="5" value="${s.maxResults}"></label>
+    <label class="f"><span>2nd/3rd pick threshold</span><input type="number" id="s-thr" step="0.05" min="0" max="1" value="${s.secondaryThreshold}"></label>
+    ${['strongUp','up','down','strongDown'].map(k=>
+      `<label class="f"><span>Points: ${esc(LABEL[k])}</span><input type="number" id="s-w-${k}" step="0.5" value="${s.weights[k]}"></label>`).join('')}`;
+  $('#s-max').onchange = e => { s.maxResults = +e.target.value; persist(); runSim(); };
+  $('#s-thr').onchange = e => { s.secondaryThreshold = +e.target.value; persist(); runSim(); };
+  ['strongUp','up','down','strongDown'].forEach(k => {
+    $('#s-w-'+k).onchange = e => { s.weights[k] = +e.target.value; persist(); runSim(); };
+  });
+  $('#csvurl').value = s.csvUrl || '';
+  $('#csvurl').onchange = e => { s.csvUrl = e.target.value.trim(); persist(); toast('Reload to pull from the new sheet'); };
+}
+
+/* ------------------------------------------------------ import/export */
+function dl(name, text, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type: type||'application/json'}));
+  a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+$('#download').onclick = () => {
+  RULES.updated = new Date().toISOString().slice(0,10);
+  dl('quiz-rules.json', JSON.stringify(RULES, null, 2));
+  store.set('');
+  toast('Downloaded — now upload it next to quiz.html');
+};
+$('#snapshot').onclick = () => {
+  if(!CSVTEXT) return toast('No sheet data to save');
+  dl('seed-data.csv', CSVTEXT, 'text/csv');
+  toast('Downloaded — upload it next to quiz.html as a backup');
+};
+$('#import').onclick = () => $('#filein').click();
+$('#filein').onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      RULES = JSON.parse(r.result);
+      qIndex = 0; persist();
+      drawQList(); drawEditor(); drawSim(); drawCov(); drawSettings();
+      toast('Rules imported');
+    }catch(err){ alert('That file is not valid quiz rules JSON.'); }
+  };
+  r.readAsText(f);
+};
+
+window.addEventListener('beforeunload', e => {
+  if(store.get()){ e.preventDefault(); e.returnValue = ''; }
+});
+
+boot();
+})();
+</script>
+</body>
+</html>
