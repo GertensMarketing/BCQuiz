@@ -42,9 +42,18 @@ If relaxing kicks in, the customer sees an honest "this is a close match, not a 
 
 **Everything else is points.** Each question has a weight (the goal question counts most at 1.6, the look-and-feel tiebreaker least at 0.6). The top scorer is always shown; second and third only appear if they score at least 70% of the leader. So a customer with clear answers gets one confident pick, and a customer with open-ended answers gets three to browse.
 
+**When a customer picks several answers to one question** (the goal question and the site-conditions question both allow it), two things happen automatically:
+
+- The question's points are damped rather than simply added up, so choosing three goals doesn't make that one question outweigh sun, traffic and upkeep combined. A blend that satisfies all three still beats one that satisfies one — just not by three times. You can switch this to a plain average or a straight total under Settings.
+- If one answer removes a blend that another answer actively asked for, the removal is downgraded to a heavy penalty instead. Someone who picks both "picture-perfect green lawn" and "convert to clover" gets the honest middle ground rather than an empty page. State and light level are never softened this way — those are physical facts, not preferences.
+
+Mark an answer **"Picking this clears every other answer"** in the builder for options like "I'm not sure yet" that shouldn't combine with anything.
+
 The match percentage is the blend's score against the best score that was actually achievable for those answers — not a number invented for decoration.
 
 ## The builder
+
+The goal question lets customers pick more than one answer. Any question can be switched between one answer and several under **Answer type** in the builder.
 
 **Questions & rules** — pick a question on the left, then paint the grid. Choose an effect from the row of brushes, then click or drag across cells. Click an answer heading to fill that whole column; click a blend name to fill its whole row.
 
@@ -78,6 +87,6 @@ Also worth a look: 12 of your 40 rows are set to `No` in column D, including all
 
 Add a blend by adding a row and setting column D to `Yes` — the quiz picks it up on next load, no code change. New blends start neutral everywhere, so open the builder and paint them into the goal question or they'll only ever be recommended on automatic scoring.
 
-Keep these column values spelled exactly as they are now, since the scoring matches on them: `Sun or Shade?`, `High Wear Tolerance?`, `Mowing Requirements`, `Water Usage`, `Germination Rate`, `Good for Overseeding?`, `Grows In:`. (The engine already tolerates the `Occassional mowing` spelling in the sheet, so don't feel obliged to fix it — but if you do, the engine accepts both.)
+Keep these column values spelled exactly as they are now, since the scoring matches on them: `Sun or Shade?`, `High Wear Tolerance?`, `Mowing Requirements`, `Water Usage`, `Germination Rate`, `Good for Overseeding?`, `Grows In:`. The engine accepts both `Occasional mowing` and the older `Occassional` spelling, so the fix you made is safe either way.
 
 If Google is ever unreachable the quiz falls back to `seed-data.csv`. Press **Save data snapshot** in the builder whenever the sheet changes to keep that copy current.
