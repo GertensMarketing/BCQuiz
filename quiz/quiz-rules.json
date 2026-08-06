@@ -13,7 +13,8 @@
       "down": -2,
       "strongDown": -4,
       "eliminate": 0
-    }
+    },
+    "multiAnswerScoring": "sqrt"
   },
   "questions": [
     {
@@ -401,12 +402,12 @@
     {
       "id": "goal",
       "enabled": true,
-      "type": "single",
+      "type": "multi",
       "input": "cards",
       "weight": 1.6,
       "eyebrow": "The goal",
       "title": "What kind of lawn are you hoping for?",
-      "help": "This is the biggest factor in what we send you.",
+      "help": "Pick as many as apply \u2014 we'll look for blends that do more than one job.",
       "auto": null,
       "options": [
         {
@@ -629,7 +630,8 @@
             "Short Native Wildflower Mix": "eliminate",
             "Tall Native Wildflower Mix": "eliminate",
             "Wetland Native Wildflower Mix": "eliminate"
-          }
+          },
+          "exclusive": true
         }
       ]
     },

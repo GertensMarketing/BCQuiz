@@ -485,6 +485,9 @@ function drawOptList(q){
         <label class="f"><span>Small print</span><input type="text" data-o="${i}" data-k="sub" value="${esc(o.sub||'')}"></label>
         <label class="f"><span>Answer id</span><input type="text" data-o="${i}" data-k="id" value="${esc(o.id||'')}"></label>
       </div>
+      ${q.type==='multi'?`<label class="switch" style="margin:2px 0 10px"><input type="checkbox"
+        data-o="${i}" data-k="exclusive"${o.exclusive?' checked':''}>
+        Picking this clears every other answer</label>`:''}
       <div class="mono" style="color:var(--muted);margin-top:6px">Spreadsheet rules</div>
       <div class="crlist">
         ${(o.columnRules||[]).map((cr,j)=>`<div class="cr">
@@ -506,8 +509,9 @@ function drawOptList(q){
   $$('#optlist input[data-k],#optlist select[data-k]').forEach(el => {
     el.onchange = el.oninput = () => {
       const o = q.options[+el.dataset.o];
-      if(el.dataset.j != null) o.columnRules[+el.dataset.j][el.dataset.k] = el.value;
-      else o[el.dataset.k] = el.value;
+      const v = el.type === 'checkbox' ? el.checked : el.value;
+      if(el.dataset.j != null) o.columnRules[+el.dataset.j][el.dataset.k] = v;
+      else o[el.dataset.k] = v;
       persist();
       if(el.dataset.k === 'label' || el.dataset.k === 'id'){ drawEditor(); drawSim(); }
       runSim();
@@ -613,10 +617,16 @@ function drawSettings(){
   $('#setform').innerHTML = `
     <label class="f"><span>Most blends to show</span><input type="number" id="s-max" min="1" max="5" value="${s.maxResults}"></label>
     <label class="f"><span>2nd/3rd pick threshold</span><input type="number" id="s-thr" step="0.05" min="0" max="1" value="${s.secondaryThreshold}"></label>
+    <label class="f"><span>When several answers are picked</span><select id="s-multi">
+      <option value="sqrt"${(s.multiAnswerScoring||'sqrt')==='sqrt'?' selected':''}>Damped total (recommended)</option>
+      <option value="mean"${s.multiAnswerScoring==='mean'?' selected':''}>Average them</option>
+      <option value="none"${s.multiAnswerScoring==='none'?' selected':''}>Add them all up</option>
+    </select></label>
     ${['strongUp','up','down','strongDown'].map(k=>
       `<label class="f"><span>Points: ${esc(LABEL[k])}</span><input type="number" id="s-w-${k}" step="0.5" value="${s.weights[k]}"></label>`).join('')}`;
   $('#s-max').onchange = e => { s.maxResults = +e.target.value; persist(); runSim(); };
   $('#s-thr').onchange = e => { s.secondaryThreshold = +e.target.value; persist(); runSim(); };
+  $('#s-multi').onchange = e => { s.multiAnswerScoring = e.target.value; persist(); runSim(); };
   ['strongUp','up','down','strongDown'].forEach(k => {
     $('#s-w-'+k).onchange = e => { s.weights[k] = +e.target.value; persist(); runSim(); };
   });

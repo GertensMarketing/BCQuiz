@@ -200,9 +200,53 @@
 
   /* ------------------------------------------------------------ scoring */
 
+  // Scores one blend against ONE selected answer.
+  function scoreOption(blend, question, opt, weights) {
+    const out = { points: 0, eliminate: null, must: false, reasons: [] };
+    const bump = (tier) => {
+      const order = { hard: 3, sun: 2, rule: 1 };
+      if (!out.eliminate || order[tier] > order[out.eliminate]) out.eliminate = tier;
+    };
+
+    // 1. auto rule
+    const auto = question.auto;
+    if (auto && auto.enabled !== false && AUTO[auto.kind]) {
+      const a = AUTO[auto.kind]({
+        blend, auto, question,
+        optionId: opt.id,
+        answerValue: opt.value != null ? opt.value : opt.id
+      }) || {};
+      out.points += a.points || 0;
+      if (a.eliminate) bump(a.eliminate);
+      if (a.reason) out.reasons.push(a.reason);
+    }
+
+    // 2. column rules
+    (opt.columnRules || []).forEach(cr => {
+      if (!cr.column || !cr.effect) return;
+      if (!cellMatches(blend[normKey(cr.column)], cr.op || 'equals', cr.value)) return;
+      if (cr.effect === 'eliminate') { bump('rule'); return; }
+      if (cr.effect === 'must') { out.must = true; return; }
+      const p = effectPoints(cr.effect, weights);
+      out.points += p;
+      if (p > 0) out.reasons.push(clean(cr.column) + ': ' + clean(blend[normKey(cr.column)]));
+    });
+
+    // 3. manual overrides from the builder — these win over everything above
+    const eff = (opt.overrides || {})[blend._name];
+    if (eff && eff !== 'neutral') {
+      if (eff === 'eliminate') { bump('rule'); return out; }
+      if (eff === 'must') { out.must = true; out.reasons.push('Hand-picked for this answer'); return out; }
+      const p = effectPoints(eff, weights);
+      out.points += p;
+      if (p > 0) out.reasons.push('Hand-picked for this answer');
+    }
+    return out;
+  }
+
   // Scores one blend for one question. Returns
   // { points, eliminate: null|'hard'|'sun'|'rule', must: bool, reasons: [] }
-  function scoreQuestion(blend, question, answer, weights) {
+  function scoreQuestion(blend, question, answer, weights, settings) {
     const res = { points: 0, eliminate: null, must: false, reasons: [] };
     const opts = answeredOptions(question, answer);
     if (!opts.length) return res;
@@ -212,41 +256,33 @@
       if (!res.eliminate || order[tier] > order[res.eliminate]) res.eliminate = tier;
     };
 
-    opts.forEach(opt => {
-      // 1. auto rule
-      const auto = question.auto;
-      if (auto && auto.enabled !== false && AUTO[auto.kind]) {
-        const out = AUTO[auto.kind]({
-          blend, auto, question,
-          optionId: opt.id,
-          answerValue: opt.value != null ? opt.value : opt.id
-        }) || {};
-        res.points += out.points || 0;
-        if (out.eliminate) bump(out.eliminate);
-        if (out.reason) res.reasons.push(out.reason);
-      }
+    const per = opts.map(opt => scoreOption(blend, question, opt, weights));
+    const multi = opts.length > 1;
 
-      // 2. column rules
-      (opt.columnRules || []).forEach(cr => {
-        if (!cr.column || !cr.effect) return;
-        if (!cellMatches(blend[normKey(cr.column)], cr.op || 'equals', cr.value)) return;
-        if (cr.effect === 'eliminate') { bump('rule'); return; }
-        if (cr.effect === 'must') { res.must = true; return; }
-        const p = effectPoints(cr.effect, weights);
-        res.points += p;
-        if (p > 0) res.reasons.push(clean(cr.column) + ': ' + clean(blend[normKey(cr.column)]));
-      });
+    per.forEach((o, idx) => {
+      res.points += o.points;
+      if (o.must) res.must = true;
+      o.reasons.forEach(r => { if (res.reasons.indexOf(r) === -1) res.reasons.push(r); });
 
-      // 3. manual overrides from the builder — these win over everything above
-      const eff = (opt.overrides || {})[blend._name];
-      if (eff && eff !== 'neutral') {
-        if (eff === 'eliminate') { bump('rule'); return; }
-        if (eff === 'must') { res.must = true; res.reasons.push('Hand-picked for this answer'); return; }
-        const p = effectPoints(eff, weights);
-        res.points += p;
-        if (p > 0) res.reasons.push('Hand-picked for this answer');
-      }
+      if (!o.eliminate) return;
+      // When someone picks several answers, one answer removing a blend that a
+      // DIFFERENT answer actively asked for is a contradiction, not a verdict.
+      // Demote it to a heavy penalty so the blend can still compete.
+      // Only rule-based removals are rescued — state and light are physical facts.
+      const rescued = multi && o.eliminate === 'rule' &&
+        per.some((x, j) => j !== idx && (x.points > 0 || x.must));
+      if (rescued) res.points += effectPoints('strongDown', weights);
+      else bump(o.eliminate);
     });
+
+    // Picking three goals should not make that question count three times as
+    // much as every other question. Damp it, while still rewarding a blend
+    // that satisfies more of what they asked for.
+    if (multi) {
+      const mode = (settings && settings.multiAnswerScoring) || 'sqrt';
+      if (mode === 'sqrt') res.points /= Math.sqrt(opts.length);
+      else if (mode === 'mean') res.points /= opts.length;
+    }
 
     return res;
   }
@@ -270,7 +306,7 @@
       };
       questions.forEach(q => {
         const w = q.weight != null ? Number(q.weight) : 1;
-        const r = scoreQuestion(blend, q, answers[q.id], weights);
+        const r = scoreQuestion(blend, q, answers[q.id], weights, settings);
         const pts = r.points * w;
         row.perQuestion[q.id] = { points: pts, eliminate: r.eliminate, reasons: r.reasons };
         row.score += pts;
