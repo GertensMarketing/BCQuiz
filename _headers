@@ -1,0 +1,16 @@
+# Netlify reads this file from the ROOT of your published folder.
+# The file is named exactly "_headers" — no .txt, no extension at all.
+#
+# Paths below are URL paths, starting from your domain root. These assume the
+# quiz files live in a folder called "quiz". If you move or rename that folder,
+# update these paths to match.
+
+/quiz/builder.html
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+
+# Keep the rule file and the data snapshot out of search results too.
+/quiz/quiz-rules.json
+  X-Robots-Tag: noindex, nofollow
+
+/quiz/seed-data.csv
+  X-Robots-Tag: noindex, nofollow
