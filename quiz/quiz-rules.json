@@ -1,9 +1,9 @@
 {
-  "version": 1,
-  "updated": "2026-08-06",
+  "version": 2,
+  "updated": "2026-08-21",
   "settings": {
     "csvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6wivSEjtpfSYiUoxPVz6kCQdKGpoVVtbOCstDuCOP1kQvLrEWBOdXC1iyNzVKzc5cVXL6D-cqTVGz/pub?gid=505446071&single=true&output=csv",
-    "maxResults": 3,
+    "maxResults": 4,
     "secondaryThreshold": 0.7,
     "weights": {
       "must": 0,
@@ -370,13 +370,16 @@
           "label": "Full sun",
           "sub": "6+ hours of direct sun",
           "value": "Full Sun (6+ hours of direct sun)",
-          "overrides": {},
+          "overrides": {
+            "Premium Sunny w/Tazo": "strongUp",
+            "All Purpose Quick Sunny Mix": "strongUp"
+          },
           "columnRules": []
         },
         {
           "id": "sun_part",
           "label": "Full sun to partial shade",
-          "sub": "4\u20136 hours of sun",
+          "sub": "4–6 hours of sun",
           "value": "Full Sun to Partial Shade (4-6 hours of sun)",
           "overrides": {},
           "columnRules": []
@@ -384,7 +387,7 @@
         {
           "id": "part_shade",
           "label": "Partial sun to full shade",
-          "sub": "3\u20134 hours of sun",
+          "sub": "3–4 hours of sun",
           "value": "Partial Sun to Full Shade (3-4 hours of sun)",
           "overrides": {},
           "columnRules": []
@@ -394,7 +397,10 @@
           "label": "Full shade",
           "sub": "Less than 3 hours of sun",
           "value": "Full Shade (less than 3 hours of sun)",
-          "overrides": {},
+          "overrides": {
+            "Premium Dense Shade Mix": "strongUp",
+            "Premium Medium Shade Mix": "strongUp"
+          },
           "columnRules": []
         }
       ]
@@ -407,7 +413,7 @@
       "weight": 1.6,
       "eyebrow": "The goal",
       "title": "What kind of lawn are you hoping for?",
-      "help": "Pick as many as apply \u2014 we'll look for blends that do more than one job.",
+      "help": "Pick as many as apply — we'll look for blends that do more than one job.",
       "auto": null,
       "options": [
         {
@@ -688,7 +694,9 @@
           "id": "heavy",
           "label": "A lot of traffic",
           "sub": "Sports, kids, and pets on it daily",
-          "overrides": {},
+          "overrides": {
+            "Premium Heavy Traffic Mix w/Tazo": "strongUp"
+          },
           "columnRules": []
         }
       ]
@@ -745,7 +753,10 @@
           "id": "low",
           "label": "I rarely have time for it",
           "sub": "Mow it when I have to",
-          "overrides": {},
+          "overrides": {
+            "Fescue Low Grow No Mow w/Tazo": "strongUp",
+            "Cabin Mix": "up"
+          },
           "columnRules": []
         }
       ]
@@ -786,7 +797,9 @@
           "id": "asap",
           "label": "As fast as it can grow",
           "sub": "Bare soil, erosion, or an event coming up",
-          "overrides": {},
+          "overrides": {
+            "All Purpose Quick Sunny Mix": "up"
+          },
           "columnRules": []
         },
         {
