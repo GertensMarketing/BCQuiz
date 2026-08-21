@@ -163,20 +163,6 @@ select{
 .match b{display:block;font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1;color:var(--field)}
 .match span{color:#6B5F3F}
 
-/* blades <-> clover position gauge */
-.gauge{margin:20px 0 4px}
-.gauge-bar{
-  height:8px;border-radius:99px;position:relative;
-  background:linear-gradient(90deg,var(--field),#8A9B5C 55%,var(--rose));
-  opacity:.85;
-}
-.gauge-pin{
-  position:absolute;top:50%;width:15px;height:15px;border-radius:99px;
-  background:var(--tag);border:2.5px solid var(--ink);
-  transform:translate(-50%,-50%);transition:left .7s cubic-bezier(.2,.7,.3,1);
-}
-.gauge-ends{display:flex;justify-content:space-between;margin-top:7px;color:#6B5F3F}
-
 .why{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
 .why span{
   background:rgba(43,86,54,.09);color:#3D5A3E;border-radius:99px;
@@ -424,16 +410,6 @@ footer.site img{width:100%;height:auto}
 
   /* ---------------------------------------------------------- results */
 
-  // Where a blend sits on the BLADES -> CLOVER spectrum. 0 = clover, 1 = blades.
-  function spectrumPos(b){
-    const mow = {'Little to no mowing needed':0,'Occassional mowing':.42,'Occasional mowing':.42,
-                 'Standard mowing interval':.72,'Needs frequent mowing':1}[b['Mowing Requirements']];
-    const water = {'Low Water Needs':0,'Normal Water Needs':.55,'High Water Needs':1}[b['Water Usage']];
-    let p = (mow == null ? .5 : mow) * .68 + (water == null ? .5 : water) * .32;
-    if(/clover|wildflower|prairie|pollinator|deer plot/i.test(b._name)) p = Math.min(p, .18);
-    return Math.max(.04, Math.min(.96, p));
-  }
-
   function renderResults(){
     const out = BCQuiz.runQuiz(BLENDS, RULES, answers);
     writeHash();
@@ -459,7 +435,6 @@ footer.site img{width:100%;height:auto}
 
     const cards = out.results.map((r, i) => {
       const b = r.blend;
-      const pos = Math.round(spectrumPos(b) * 100);
       const why = r.reasons.filter(Boolean).slice(0, 4);
       const specs = [
         ['Sunlight',    b._sun.join(' · ') || '—'],
@@ -479,10 +454,6 @@ footer.site img{width:100%;height:auto}
           <div class="tag-title">
             <h3>${esc(b._name)}</h3>
             <div class="match"><b>${r.match}%</b><span class="mono">Match</span></div>
-          </div>
-          <div class="gauge">
-            <div class="gauge-bar"><i class="gauge-pin" style="left:${pos}%"></i></div>
-            <div class="gauge-ends"><span class="mono">Blades</span><span class="mono">Clover</span></div>
           </div>
           ${why.length ? '<div class="why">'+why.map(w=>'<span>'+esc(w)+'</span>').join('')+'</div>' : ''}
           <dl class="specs">
