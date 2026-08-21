@@ -118,6 +118,13 @@ a{color:var(--field)}
 .opt[aria-pressed="true"] .mark{background:var(--field);border-color:var(--field)}
 .opt .mark svg{width:10px;height:10px;opacity:0;transition:opacity .16s ease}
 .opt[aria-pressed="true"] .mark svg{opacity:1}
+/* Pick-one answers read as radios (a dot); pick-many keep the square + tick. */
+.opt:not(.sq) .mark svg{display:none}
+.opt:not(.sq) .mark::after{
+  content:'';width:7px;height:7px;border-radius:99px;background:#fff;
+  transform:scale(0);transition:transform .16s ease;
+}
+.opt:not(.sq)[aria-pressed="true"] .mark::after{transform:scale(1)}
 .opt .txt{flex:1;min-width:0}
 .opt .lbl{font-weight:600;display:block}
 .opt .sub{color:var(--muted);font-size:.85rem;display:block;margin-top:2px}
@@ -399,7 +406,6 @@ footer.site img{width:100%;height:auto}
             app.querySelectorAll('.opt').forEach(b =>
               b.setAttribute('aria-pressed', b === btn));
             ready();
-            setTimeout(() => { step++; render(); }, 190);   // auto-advance
           }
         };
       });
