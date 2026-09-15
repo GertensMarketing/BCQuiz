@@ -1,20 +1,2 @@
-# Blades & Clover
-# This file belongs at the root of the site. Crawlers only ever look for it
-# at yourdomain.com/robots.txt — a copy inside a subfolder is ignored.
-#
-# Deliberately NOT blocking /quiz/builder.html here.
-#
-# It looks backwards, but "Disallow" tells a crawler not to READ the page —
-# and a crawler that never reads it never sees the "noindex" instruction
-# inside it. A blocked URL can still be listed in search results if someone
-# links to it, just with no description. Letting crawlers fetch the page and
-# find the noindex is what actually keeps it out of the index.
-#
-# The noindex lives in builder.html's <meta name="robots"> tag and in the
-# X-Robots-Tag header set by the _headers file.
-
 User-agent: *
 Allow: /
-
-# If you add a sitemap later, uncomment this and point it at the real file.
-# Sitemap: https://bladesandclover.netlify.app/sitemap.xml
