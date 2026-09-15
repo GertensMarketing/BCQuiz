@@ -251,7 +251,13 @@ footer.site img{width:100%;height:auto}
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+  const QP = new URLSearchParams(location.search);
+  const EMBED = QP.get('embed') === '1';
+  // When embedded, the parent page passes its own address so "copy a link to
+  // these results" shares the Shopify page rather than this raw iframe URL.
+  const PARENT_URL = QP.get('parent') ? decodeURIComponent(QP.get('parent')) : null;
+  let IN_FRAME = false;
+  try { IN_FRAME = window.parent !== window; } catch(e) { IN_FRAME = true; }
 
   let RULES = null, BLENDS = [], QS = [];
   const answers = {};
@@ -314,7 +320,7 @@ footer.site img{width:100%;height:auto}
     if(step === -1)          renderIntro();
     else if(step < QS.length) renderQuestion(QS[step]);
     else                      renderResults();
-    if(step !== -1) window.scrollTo({top:0, behavior:'smooth'});
+    if(step !== -1) scrollToTop();
     postHeight();
   }
 
@@ -323,9 +329,9 @@ footer.site img{width:100%;height:auto}
       <section class="intro">
         <img class="fulllogo" src="https://bladesandclover.netlify.app/images/Full-BC-logo.png" alt="Blades &amp; Clover">
         <h1 class="h-display">Every lawn wants something different.</h1>
-        <p class="lede">Answer ${QS.length} questions about your yard and we'll match you to the
-           small-batch blends milled for it — anywhere from a putting-green stripe to a
-           knee-high prairie.</p>
+        <p class="lede">Answer some quick questions about your yard and we'll match you to the
+           small-batch grass seed blended just for you. Seed blends anywhere from a
+           putting-green stripe to a knee-high prairie.</p>
         <div class="spectrum">
           <div class="spectrum-labels">
             <span class="end b">BLADES</span>
@@ -501,7 +507,9 @@ footer.site img{width:100%;height:auto}
 
     $('#again').onclick = reset;
     $('#copy').onclick = e => {
-      navigator.clipboard.writeText(location.href).then(() => {
+      const base = PARENT_URL || (location.origin + location.pathname);
+      const link = base + (location.hash || '');
+      navigator.clipboard.writeText(link).then(() => {
         e.target.textContent = 'Link copied';
         setTimeout(() => { e.target.textContent = 'Copy a link to these results'; }, 2200);
       }).catch(() => { e.target.textContent = 'Copy the address bar instead'; });
@@ -531,14 +539,49 @@ footer.site img{width:100%;height:auto}
       if(Object.keys(saved).length) step = QS.length;
     }catch(e){}
   }
+  let lastH = 0;
+  function measure(){
+    const b = document.body, d = document.documentElement;
+    return Math.ceil(Math.max(
+      b ? b.scrollHeight : 0, b ? b.offsetHeight : 0,
+      d ? d.scrollHeight : 0, d ? d.offsetHeight : 0,
+      d ? d.getBoundingClientRect().height : 0
+    ));
+  }
+  function send(extra){
+    if(!EMBED && !IN_FRAME) return;
+    const msg = extra || {};
+    const scrolling = !!msg.bcQuizScroll;
+    const h = measure();
+    // A zero reading means layout is not ready; sending it would collapse the
+    // frame. Otherwise send the height whenever it changed, and always send it
+    // alongside a scroll so the parent never scrolls against a stale size.
+    if(h && (h !== lastH || scrolling)){ lastH = h; msg.bcQuizHeight = h; }
+    if(!Object.keys(msg).length) return;
+    try{ window.parent.postMessage(msg, '*'); }catch(e){}
+  }
   function postHeight(){
-    if(!EMBED && window.parent === window) return;
-    requestAnimationFrame(() => {
-      const h = document.documentElement.scrollHeight;
-      try{ window.parent.postMessage({ bcQuizHeight: h }, '*'); }catch(e){}
-    });
+    if(!EMBED && !IN_FRAME) return;
+    requestAnimationFrame(() => send());
+  }
+  // Inside an auto-height iframe there is no internal scrollbar, so scrolling
+  // ourselves does nothing — the parent page has to do it. Height and scroll
+  // travel in one message so the frame is resized before the page moves;
+  // otherwise the resize interrupts the scroll half way.
+  function scrollToTop(){
+    if(EMBED || IN_FRAME){
+      requestAnimationFrame(() => send({ bcQuizScroll: true }));
+      return;
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
   }
   window.addEventListener('resize', postHeight);
+  // Fonts loading, images arriving and answer cards changing all alter the
+  // height after the initial measurement; watch for it rather than guessing.
+  if((EMBED || IN_FRAME) && window.ResizeObserver){
+    try{ new ResizeObserver(postHeight).observe(document.body); }catch(e){}
+  }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(postHeight).catch(()=>{});
 
   boot();
 })();
