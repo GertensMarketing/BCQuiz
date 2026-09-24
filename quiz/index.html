@@ -130,11 +130,15 @@ a{color:var(--field)}
 .opt .sub{color:var(--muted);font-size:.85rem;display:block;margin-top:2px}
 
 select{
-  width:100%;padding:15px 16px;border:1px solid var(--line);border-radius:var(--r);
+  display:block;width:100%;padding:15px 16px;border:1px solid var(--line);border-radius:var(--r);
   background:var(--card);font:inherit;color:var(--ink);appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%235C6A5A' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 16px center;background-size:12px;
 }
+/* Matches the spacing .opts gives card answers, and leaves room for the focus
+   ring, which draws 5px outside the element and would otherwise sit under the
+   Continue button. */
+.q select{margin-bottom:32px}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
 
 /* ---------- results ---------- */
