@@ -147,6 +147,32 @@ select{
 .res-head h1{font-size:clamp(1.9rem,5.6vw,2.9rem);max-width:17ch;margin:0 auto 12px}
 .res-head p{color:var(--muted);max-width:46ch;margin:0 auto;font-size:.98rem}
 
+/* ---------- coupon ---------- */
+.coupon{margin:26px 0 0;text-align:center;animation:rise .45s both}
+.coupon-lede{font-size:1rem;color:var(--ink);margin:0 0 12px;font-weight:500}
+.coupon-btn{
+  position:relative;width:100%;max-width:400px;margin:0 auto;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  background:var(--tag);border:2px dashed var(--field);border-radius:8px;
+  padding:18px 22px;cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,transform .12s ease;
+}
+.coupon-btn:hover{background:#F3ECDA}
+.coupon-btn:active{transform:translateY(1px)}
+.coupon-btn svg{flex:0 0 auto;width:26px;height:26px;color:var(--field)}
+.coupon-code{
+  font-family:var(--display);font-weight:800;letter-spacing:.09em;
+  font-size:clamp(1.5rem,5.6vw,2rem);line-height:1;color:var(--field);
+}
+.coupon-hint{display:block;margin-top:9px;color:var(--muted)}
+.coupon-btn.copied{background:#E4EDDA;border-style:solid}
+.coupon-btn.copied svg,.coupon-btn.copied .coupon-code{color:var(--field)}
+.coupon-manual{
+  display:block;width:100%;max-width:400px;margin:9px auto 0;padding:9px 12px;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--card);
+  font-family:var(--mono);font-size:.9rem;text-align:center;color:var(--ink);
+}
+
 .notice{
   background:#F6EFDC;border:1px solid var(--tag-edge);border-radius:var(--r);
   padding:14px 18px;margin:26px 0 0;font-size:.9rem;color:#5A4C2A;
@@ -470,6 +496,28 @@ footer.site img{width:100%;height:auto}
     }
 
     const n = out.results.length;
+
+    const cfg = (RULES.settings && RULES.settings.coupon) || {};
+    const couponCode = String(cfg.code || '').trim();
+    const couponOn = cfg.enabled !== false && couponCode !== '';
+    const coupon = !couponOn ? '' : `
+      <div class="coupon">
+        <p class="coupon-lede">${esc(cfg.text || "Use this discount code to save 10% on your first order")}</p>
+        <button class="coupon-btn" id="coupon" type="button"
+                aria-label="Copy discount code ${esc(couponCode)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="6" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+            <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+            <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+          </svg>
+          <span class="coupon-code">${esc(couponCode)}</span>
+        </button>
+        <span class="coupon-hint mono" id="coupon-hint">Click to copy</span>
+      </div>`;
+
     let notice = '';
     if(out.relaxed){
       notice = `<div class="notice"><b>A close match, not a perfect one.</b> Nothing in our catalogue
@@ -526,6 +574,7 @@ footer.site img{width:100%;height:auto}
         <h1 class="h-display">${n === 1 ? 'One blend fits your yard.' : n + ' blends fit your yard.'}</h1>
         <p>Scored against every mix we currently make, using the answers you gave.</p>
       </section>
+      ${coupon}
       ${notice}
       ${cards}
       <div class="res-actions">
@@ -536,6 +585,33 @@ footer.site img{width:100%;height:auto}
         <h4>What you told us</h4>
         <ul>${recap}</ul>
       </div>`;
+
+    const couponBtn = $('#coupon');
+    if(couponBtn){
+      couponBtn.onclick = () => {
+        const hint = $('#coupon-hint');
+        copyText(couponCode).then(() => {
+          couponBtn.classList.add('copied');
+          if(hint) hint.textContent = 'Copied to your clipboard';
+          track('quiz_coupon_copied', { code: couponCode });
+          clearTimeout(couponBtn._t);
+          couponBtn._t = setTimeout(() => {
+            couponBtn.classList.remove('copied');
+            if(hint) hint.textContent = 'Click to copy';
+          }, 3000);
+        }).catch(() => {
+          // Give them something they can select instead of a dead button.
+          if(hint) hint.textContent = 'Copy it from here:';
+          if(!$('#coupon-manual')){
+            const f = document.createElement('input');
+            f.className = 'coupon-manual'; f.id = 'coupon-manual';
+            f.readOnly = true; f.value = couponCode;
+            couponBtn.parentNode.appendChild(f);
+            f.focus(); f.select();
+          }
+        });
+      };
+    }
 
     $('#again').onclick = reset;
     // The click through to a product is the event worth optimising for.
@@ -551,7 +627,7 @@ footer.site img{width:100%;height:auto}
     $('#copy').onclick = e => {
       const base = PARENT_URL || (location.origin + location.pathname);
       const link = base + (location.hash || '');
-      navigator.clipboard.writeText(link).then(() => {
+      copyText(link).then(() => {
         e.target.textContent = 'Link copied';
         setTimeout(() => { e.target.textContent = 'Copy a link to these results'; }, 2200);
       }).catch(() => { e.target.textContent = 'Copy the address bar instead'; });
@@ -592,6 +668,35 @@ footer.site img{width:100%;height:auto}
       d ? d.getBoundingClientRect().height : 0
     ));
   }
+  /* ---------------------------------------------------------- clipboard */
+  // navigator.clipboard needs a secure context and, inside a cross-origin
+  // iframe, an allow="clipboard-write" attribute on the frame. When either is
+  // missing we fall back to the old execCommand trick, and if that fails too
+  // the caller shows the code in a field the visitor can select by hand.
+  function legacyCopy(text){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    }catch(e){ return false; }
+  }
+  function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(text).catch(() => {
+        if(legacyCopy(text)) return;
+        throw new Error('copy failed');
+      });
+    }
+    return legacyCopy(text) ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+  }
+
   /* ------------------------------------------------------- analytics */
   // The quiz runs on a different domain to the store, so it never talks to
   // Google Analytics itself when embedded — that would start a second session
