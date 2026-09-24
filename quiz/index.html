@@ -266,6 +266,7 @@ footer.site img{width:100%;height:auto}
   let RULES = null, BLENDS = [], QS = [];
   const answers = {};
   let step = -1;                       // -1 = intro, QS.length = results
+  let completedFired = false;          // quiz_completed is sent once per run
 
   /* ------------------------------------------------------------ boot */
   async function boot(){
@@ -349,7 +350,10 @@ footer.site img{width:100%;height:auto}
         </div>
         <button class="btn" id="go">Start the quiz</button>
       </section>`;
-    $('#go').onclick = () => { step = 0; render(); };
+    $('#go').onclick = () => {
+      track('quiz_started', { total_questions: QS.length });
+      step = 0; render();
+    };
   }
 
   function renderQuestion(q){
@@ -421,7 +425,18 @@ footer.site img{width:100%;height:auto}
       });
     }
     $('#back').onclick = () => { step--; render(); };
-    next.onclick = () => { step++; render(); };
+    next.onclick = () => {
+      const v = answers[q.id];
+      const chosen = (Array.isArray(v) ? v : [v]).filter(Boolean)
+        .map(id => (q.options.find(o => o.id === id) || {}).label)
+        .filter(Boolean).join(', ').slice(0, 100);
+      track('quiz_question_answered', {
+        question_number: step + 1,
+        question_id: q.id,
+        answer: chosen
+      });
+      step++; render();
+    };
   }
 
   /* ---------------------------------------------------------- results */
@@ -429,6 +444,19 @@ footer.site img{width:100%;height:auto}
   function renderResults(){
     const out = BCQuiz.runQuiz(BLENDS, RULES, answers);
     writeHash();
+
+    // Once per completed run. renderResults also runs when someone opens a
+    // shared results link or the page re-renders, which is not a completion.
+    if(!completedFired){
+      completedFired = true;
+      track('quiz_completed', {
+        state: answers.state || '',
+        result_count: out.results.length,
+        top_blend: out.results.length ? out.results[0].name.slice(0, 100) : 'none',
+        blends: out.results.map(r => r.name).join(' | ').slice(0, 100),
+        widened: out.relaxed ? 'yes' : 'no'
+      });
+    }
 
     if(!out.results.length){
       app.innerHTML = `<div class="state">
@@ -510,6 +538,16 @@ footer.site img{width:100%;height:auto}
       </div>`;
 
     $('#again').onclick = reset;
+    // The click through to a product is the event worth optimising for.
+    app.querySelectorAll('.tag-cta a.btn').forEach((a, i) => {
+      a.addEventListener('click', () => {
+        track('quiz_result_clicked', {
+          blend: (out.results[i] ? out.results[i].name : '').slice(0, 100),
+          position: i + 1,
+          state: answers.state || ''
+        });
+      });
+    });
     $('#copy').onclick = e => {
       const base = PARENT_URL || (location.origin + location.pathname);
       const link = base + (location.hash || '');
@@ -522,6 +560,8 @@ footer.site img{width:100%;height:auto}
   }
 
   function reset(){
+    track('quiz_restarted', {});
+    completedFired = false;
     QS.forEach(q => delete answers[q.id]);
     history.replaceState(null, '', location.pathname + location.search);
     step = -1; render();
@@ -552,6 +592,24 @@ footer.site img{width:100%;height:auto}
       d ? d.getBoundingClientRect().height : 0
     ));
   }
+  /* ------------------------------------------------------- analytics */
+  // The quiz runs on a different domain to the store, so it never talks to
+  // Google Analytics itself when embedded — that would start a second session
+  // with its own client id and break attribution. Instead it hands the event
+  // to the page it is embedded in, which already has the store's analytics.
+  function track(name, params){
+    const data = Object.assign({}, params || {});
+    if(EMBED || IN_FRAME){
+      try{ window.parent.postMessage({ bcQuizEvent: name, bcQuizParams: data }, '*'); }catch(e){}
+      return;
+    }
+    // Standalone: use whatever this page happens to have.
+    try{
+      if(typeof window.gtag === 'function') window.gtag('event', name, data);
+      else if(window.dataLayer) window.dataLayer.push(Object.assign({event:name}, data));
+    }catch(e){}
+  }
+
   function send(extra){
     if(!EMBED && !IN_FRAME) return;
     const msg = extra || {};
