@@ -625,10 +625,15 @@ function drawSettings(){
       <option value="none"${s.multiAnswerScoring==='none'?' selected':''}>Add them all up</option>
     </select></label>
     ${['strongUp','up','down','strongDown'].map(k=>
-      `<label class="f"><span>Points: ${esc(LABEL[k])}</span><input type="number" id="s-w-${k}" step="0.5" value="${s.weights[k]}"></label>`).join('')}`;
+      `<label class="f"><span>Points: ${esc(LABEL[k])}</span><input type="number" id="s-w-${k}" step="0.5" value="${s.weights[k]}"></label>`).join('')}
+    <label class="f"><span>Discount code</span><input type="text" id="s-cc" value="${esc((s.coupon||{}).code||'')}" placeholder="Leave blank to hide"></label>
+    <label class="f" style="grid-column:1/-1"><span>Discount wording</span><input type="text" id="s-ct" value="${esc((s.coupon||{}).text||'')}"></label>`;
   $('#s-max').onchange = e => { s.maxResults = +e.target.value; persist(); runSim(); };
   $('#s-thr').onchange = e => { s.secondaryThreshold = +e.target.value; persist(); runSim(); };
   $('#s-multi').onchange = e => { s.multiAnswerScoring = e.target.value; persist(); runSim(); };
+  $('#s-cc').onchange = e => { s.coupon = s.coupon || {}; s.coupon.code = e.target.value.trim();
+    s.coupon.enabled = !!s.coupon.code; persist(); toast(s.coupon.code ? 'Code updated' : 'Coupon hidden'); };
+  $('#s-ct').onchange = e => { s.coupon = s.coupon || {}; s.coupon.text = e.target.value; persist(); };
   ['strongUp','up','down','strongDown'].forEach(k => {
     $('#s-w-'+k).onchange = e => { s.weights[k] = +e.target.value; persist(); runSim(); };
   });
