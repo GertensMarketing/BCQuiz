@@ -153,20 +153,21 @@ select{
 .coupon-btn{
   position:relative;width:100%;max-width:400px;margin:0 auto;
   display:flex;align-items:center;justify-content:center;gap:14px;
-  background:var(--tag);border:2px dashed var(--field);border-radius:8px;
-  padding:18px 22px;cursor:pointer;
-  transition:background .18s ease,border-color .18s ease,transform .12s ease;
+  background:#2a5738;border:2px dashed #ffffff;border-radius:8px;
+  padding:18px 22px;cursor:pointer;color:#ffffff;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .12s ease;
 }
-.coupon-btn:hover{background:#F3ECDA}
+.coupon-btn:hover,
+.coupon-btn:focus-visible{background:#192f20;border-color:#63ab41;color:#63ab41}
 .coupon-btn:active{transform:translateY(1px)}
-.coupon-btn svg{flex:0 0 auto;width:26px;height:26px;color:var(--field)}
+/* Icon and code both inherit the button colour, so they change together. */
+.coupon-btn svg{flex:0 0 auto;width:26px;height:26px;color:inherit}
 .coupon-code{
   font-family:var(--display);font-weight:800;letter-spacing:.09em;
-  font-size:clamp(1.5rem,5.6vw,2rem);line-height:1;color:var(--field);
+  font-size:clamp(1.5rem,5.6vw,2rem);line-height:1;color:inherit;
 }
 .coupon-hint{display:block;margin-top:9px;color:var(--muted)}
-.coupon-btn.copied{background:#E4EDDA;border-style:solid}
-.coupon-btn.copied svg,.coupon-btn.copied .coupon-code{color:var(--field)}
+.coupon-btn.copied{background:#192f20;border-color:#63ab41;border-style:solid;color:#63ab41}
 .coupon-manual{
   display:block;width:100%;max-width:400px;margin:9px auto 0;padding:9px 12px;
   border:1px solid var(--line);border-radius:var(--r);background:var(--card);
